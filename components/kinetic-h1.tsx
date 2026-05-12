@@ -52,20 +52,12 @@ export default function KineticH1() {
 
   return (
     <h1 className="hero-h1">
-      <span className="bracket-line">Modern rehab</span>
-      <span className="bracket-line">
-        for{" "}
-        <span className="bracket" aria-hidden="true">
-          [
-        </span>
+      <span className="bracket-line">Modern rehab for</span>
+      <span className="bracket-line bracket-clause">
         <span className="bracket-text" aria-live="polite">
           {shown}
           <span className="caret" aria-hidden="true" />
         </span>
-        <span className="bracket" aria-hidden="true">
-          ]
-        </span>
-        .
       </span>
     </h1>
   );
