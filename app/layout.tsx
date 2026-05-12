@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Anton, Geist_Mono, Caveat } from "next/font/google";
+import { Manrope, Geist_Mono, Caveat } from "next/font/google";
 import "./globals.css";
 
-const anton = Anton({
+const manrope = Manrope({
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-display",
   display: "swap",
 });
@@ -45,7 +45,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${anton.variable} ${geistMono.variable} ${caveat.variable}`}
+      className={`${manrope.variable} ${geistMono.variable} ${caveat.variable}`}
     >
       <head>
         <link
