@@ -248,12 +248,14 @@ section.tight { padding: clamp(24px, 3vw, 40px) 0; }
   margin-left: 0.05em;
 }
 .hero-h1 .caret {
-  display: inline-block;
-  width: 0.36em;
-  height: 0.72em;
-  vertical-align: -0.04em;
-  background: var(--mr-orange);
-  margin-left: 0.06em;
+  /* Plain inline (not inline-block). An inline-block caret introduces a
+     wrap opportunity right before the closing ']', which was orphaning
+     the bracket on its own line for longer phrases. ▏ is U+258F, the
+     thinnest vertical block character. */
+  font-family: var(--mono-stack);
+  color: var(--mr-orange);
+  font-weight: 500;
+  margin-left: 0.04em;
   animation: blink 1.05s steps(1) infinite;
 }
 @keyframes blink { 50% { opacity: 0; } }

@@ -56,7 +56,7 @@ export default function KineticH1() {
       <span className="bracket-line bracket-clause">
         <span className="bracket-text" aria-live="polite">
           {shown}
-          <span className="caret" aria-hidden="true" />
+          <span className="caret" aria-hidden="true">▏</span>
         </span>
       </span>
     </h1>
