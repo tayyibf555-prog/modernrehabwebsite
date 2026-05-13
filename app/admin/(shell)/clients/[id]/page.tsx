@@ -7,11 +7,12 @@ import {
   formatPence,
   prettyDate,
   prettyDateTime,
+  relativeTime,
+  type NoteEntry,
 } from "../../../../../lib/store";
 import {
   addClientNoteAction,
   setClientTagsAction,
-  setBookingStatusAction,
 } from "../../../actions";
 
 export const dynamic = "force-dynamic";
@@ -105,37 +106,36 @@ export default async function ClientDetail(props: {
               <tbody>
                 {bookings.map((b) => {
                   const svc = serviceMap.get(b.serviceId);
+                  const noteCount = Array.isArray(b.notes) ? b.notes.length : 0;
                   return (
                     <tr key={b.id} className={b.status === "cancelled" ? "is-cancelled" : ""}>
-                      <td className="cell-mono">
-                        {prettyDateTime(new Date(b.scheduledAt))}
+                      <td>
+                        <Link
+                          href={`/admin/bookings/${b.id}`}
+                          className="cell-mono"
+                          style={{ display: "block", color: "var(--mr-ink)", fontWeight: 600 }}
+                        >
+                          {prettyDateTime(new Date(b.scheduledAt))}
+                        </Link>
                       </td>
                       <td>{svc?.name ?? b.serviceId}</td>
                       <td>
                         <span className={`pill pill-${b.status}`}>
                           {b.status.replace("-", " ")}
                         </span>
+                        {noteCount > 0 && (
+                          <span className="pill pill-tag" style={{ marginLeft: 6 }}>
+                            {noteCount} note{noteCount === 1 ? "" : "s"}
+                          </span>
+                        )}
                       </td>
                       <td className="cell-bold" style={{ textAlign: "right" }}>
                         {formatPence(b.pricePaid)}
                       </td>
                       <td className="cell-actions">
-                        <form action={setBookingStatusAction} style={{ display: "inline" }}>
-                          <input type="hidden" name="id" value={b.id} />
-                          <input type="hidden" name="clientId" value={client.id} />
-                          <input
-                            type="hidden"
-                            name="status"
-                            value={b.status === "attended" ? "booked" : "attended"}
-                          />
-                          <button
-                            type="submit"
-                            className="btn-sm"
-                            disabled={b.status === "cancelled" || b.status === "no-show"}
-                          >
-                            {b.status === "attended" ? "Undo" : "Mark attended"}
-                          </button>
-                        </form>
+                        <Link href={`/admin/bookings/${b.id}`} className="btn-sm primary">
+                          Open →
+                        </Link>
                       </td>
                     </tr>
                   );
@@ -163,21 +163,23 @@ export default async function ClientDetail(props: {
           </div>
 
           <div className="panel-head" style={{ marginTop: 24 }}>
-            <h3>Notes</h3>
+            <h3>Client notes</h3>
+            <span className="cell-mono">
+              {Array.isArray(client.notes) ? client.notes.length : 0} on file
+            </span>
           </div>
-          <div className="notes-block">
-            {client.notes ? client.notes : <span className="empty">No notes yet.</span>}
-          </div>
+          <ClientNotesTimeline notes={client.notes} />
           <form action={addClientNoteAction} className="note-form">
             <input type="hidden" name="id" value={client.id} />
             <textarea
               name="note"
-              placeholder="Add a private clinical note..."
+              placeholder="Add a private clinical note about this client..."
               required
+              rows={3}
             />
             <div className="actions">
               <button type="submit" className="btn-sm primary">
-                Add note →
+                Save note →
               </button>
             </div>
           </form>
@@ -211,5 +213,32 @@ export default async function ClientDetail(props: {
         </div>
       </section>
     </>
+  );
+}
+
+function ClientNotesTimeline({ notes }: { notes: NoteEntry[] }) {
+  if (!Array.isArray(notes) || notes.length === 0) {
+    return (
+      <p className="kv-val muted" style={{ marginBottom: 12 }}>
+        No client notes yet. Add the first one below.
+      </p>
+    );
+  }
+  const ordered = [...notes].sort(
+    (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime(),
+  );
+  return (
+    <ol className="notes-timeline">
+      {ordered.map((n, i) => (
+        <li key={`${n.at}-${i}`} className="note-entry">
+          <div className="note-meta">
+            <span className="note-when">{prettyDateTime(new Date(n.at))}</span>
+            <span className="note-relative">{relativeTime(n.at)}</span>
+            {n.author && <span className="note-author">· {n.author}</span>}
+          </div>
+          <p className="note-body">{n.body}</p>
+        </li>
+      ))}
+    </ol>
   );
 }

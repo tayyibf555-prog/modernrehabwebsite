@@ -5,7 +5,7 @@
  * Bookings span the past 6 weeks + next 4 weeks. Mix of attended / booked /
  * cancelled / no-show so every status renders somewhere on the dashboard.
  */
-import type { Store, Service, Client, Booking, BookingStatus } from "./store";
+import type { Store, Service, Client, Booking, BookingStatus, NoteEntry } from "./store";
 
 const SERVICES_SEED: Service[] = [
   {
@@ -140,7 +140,13 @@ export function SEED(): Store {
       firstSeenAt: firstSeen.toISOString(),
       lastSeenAt: null,
       isReturning: false,
-      notes: pick(rng, NOTES_SAMPLES),
+      notes: ((): NoteEntry[] => {
+        const sample = pick(rng, NOTES_SAMPLES);
+        if (!sample) return [];
+        const at = new Date(firstSeen);
+        at.setDate(at.getDate() + 1);
+        return [{ at: at.toISOString(), body: sample, author: "James" }];
+      })(),
       tags: c.tags,
     };
   });
@@ -176,7 +182,17 @@ export function SEED(): Store {
         slot,
         status,
         pricePaid,
-        notes: rng() < 0.4 ? pick(rng, NOTES_SAMPLES) : "",
+        notes: ((): NoteEntry[] => {
+          if (status !== "attended") return [];
+          if (rng() >= 0.45) return [];
+          const sample = pick(rng, NOTES_SAMPLES);
+          if (!sample) return [];
+          return [{
+            at: new Date(at.getTime() + 1000 * 60 * 60).toISOString(),
+            body: sample,
+            author: "James",
+          }];
+        })(),
         presentingComplaint: pick(rng, COMPLAINTS),
         createdAt: createdAt.toISOString(),
         cancelledAt: status === "cancelled" ? at.toISOString() : null,
@@ -202,7 +218,7 @@ export function SEED(): Store {
         slot,
         status: "booked",
         pricePaid,
-        notes: "",
+        notes: [],
         presentingComplaint: pick(rng, COMPLAINTS),
         createdAt: new Date(now.getTime() - rng() * 1000 * 60 * 60 * 24 * 7).toISOString(),
         cancelledAt: null,
@@ -227,7 +243,7 @@ export function SEED(): Store {
       slot: `${String(h).padStart(2, "0")}:00`,
       status: "booked",
       pricePaid,
-      notes: "",
+      notes: [],
       presentingComplaint: pick(rng, COMPLAINTS),
       createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 3).toISOString(),
       cancelledAt: null,

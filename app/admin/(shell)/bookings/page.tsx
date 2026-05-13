@@ -92,7 +92,13 @@ export default async function BookingsPage(props: {
                 return (
                   <tr key={b.id} className={b.status === "cancelled" ? "is-cancelled" : ""}>
                     <td>
-                      <div className="cell-mono">{prettyDateTime(new Date(b.scheduledAt))}</div>
+                      <Link
+                        href={`/admin/bookings/${b.id}`}
+                        className="cell-mono"
+                        style={{ display: "block", color: "var(--mr-ink)", fontWeight: 600 }}
+                      >
+                        {prettyDateTime(new Date(b.scheduledAt))}
+                      </Link>
                       <div className="cell-mono" style={{ fontSize: 10, opacity: 0.7 }}>{b.id}</div>
                     </td>
                     <td className="cell-bold cell-name">
@@ -111,6 +117,15 @@ export default async function BookingsPage(props: {
                     </td>
                     <td>
                       <span className={`pill pill-${b.status}`}>{b.status.replace("-", " ")}</span>
+                      {Array.isArray(b.notes) && b.notes.length > 0 && (
+                        <span
+                          className="pill pill-tag"
+                          style={{ marginLeft: 6 }}
+                          title={`${b.notes.length} session note${b.notes.length === 1 ? "" : "s"}`}
+                        >
+                          {b.notes.length} note{b.notes.length === 1 ? "" : "s"}
+                        </span>
+                      )}
                     </td>
                     <td className="cell-bold" style={{ textAlign: "right" }}>
                       {formatPence(b.pricePaid)}
@@ -120,7 +135,6 @@ export default async function BookingsPage(props: {
                         id={b.id}
                         clientId={b.clientId}
                         status={b.status}
-                        notes={b.notes}
                       />
                     </td>
                   </tr>
@@ -142,13 +156,14 @@ function BookingRowActions({
   id: string;
   clientId: string;
   status: BookingStatus;
-  notes: string;
 }) {
   return (
     <div style={{ display: "inline-flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
-      <StatusForm id={id} clientId={clientId} target="attended" current={status} label="Mark attended" />
+      <Link href={`/admin/bookings/${id}`} className="btn-sm primary">
+        Open →
+      </Link>
+      <StatusForm id={id} clientId={clientId} target="attended" current={status} label="Attended" />
       <StatusForm id={id} clientId={clientId} target="cancelled" current={status} label="Cancel" danger />
-      <StatusForm id={id} clientId={clientId} target="no-show" current={status} label="No-show" danger />
     </div>
   );
 }

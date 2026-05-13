@@ -25,6 +25,12 @@ export type Service = {
   position: number;
 };
 
+export type NoteEntry = {
+  at: string;                // ISO timestamp
+  body: string;
+  author?: string;           // "James" by default; future-proof for multi-staff
+};
+
 export type Client = {
   id: string;
   fullName: string;
@@ -33,7 +39,7 @@ export type Client = {
   firstSeenAt: string;     // ISO
   lastSeenAt: string | null;
   isReturning: boolean;
-  notes: string;
+  notes: NoteEntry[];
   tags: string[];
 };
 
@@ -47,7 +53,7 @@ export type Booking = {
   slot: string;              // "08:00"
   status: BookingStatus;
   pricePaid: number;         // pence; effective price after returning discount
-  notes: string;
+  notes: NoteEntry[];        // session notes — appended on every visit
   presentingComplaint: string;
   createdAt: string;
   cancelledAt: string | null;
@@ -280,25 +286,33 @@ export async function updateBookingStatus(
   await saveStore(s);
 }
 
-export async function appendBookingNote(id: string, note: string): Promise<void> {
+export async function appendBookingNote(
+  id: string,
+  body: string,
+  author = "James",
+): Promise<void> {
+  const trimmed = body.trim();
+  if (!trimmed) return;
   const s = await loadStore();
   const b = s.bookings.find((x) => x.id === id);
   if (!b) throw new Error("Booking not found");
-  const stamp = new Date().toISOString();
-  const trimmed = note.trim();
-  if (!trimmed) return;
-  b.notes = (b.notes ? `${b.notes}\n` : "") + `[${stamp}] ${trimmed}`;
+  if (!Array.isArray(b.notes)) b.notes = [];
+  b.notes.push({ at: new Date().toISOString(), body: trimmed, author });
   await saveStore(s);
 }
 
-export async function appendClientNote(id: string, note: string): Promise<void> {
+export async function appendClientNote(
+  id: string,
+  body: string,
+  author = "James",
+): Promise<void> {
+  const trimmed = body.trim();
+  if (!trimmed) return;
   const s = await loadStore();
   const c = s.clients.find((x) => x.id === id);
   if (!c) throw new Error("Client not found");
-  const stamp = new Date().toISOString();
-  const trimmed = note.trim();
-  if (!trimmed) return;
-  c.notes = (c.notes ? `${c.notes}\n` : "") + `[${stamp}] ${trimmed}`;
+  if (!Array.isArray(c.notes)) c.notes = [];
+  c.notes.push({ at: new Date().toISOString(), body: trimmed, author });
   await saveStore(s);
 }
 
@@ -334,7 +348,7 @@ export async function createBooking(draft: BookingDraft): Promise<Booking> {
     slot,
     status: "booked",
     pricePaid: price,
-    notes: "",
+    notes: [],
     presentingComplaint: draft.presentingComplaint ?? "",
     createdAt: new Date().toISOString(),
     cancelledAt: null,

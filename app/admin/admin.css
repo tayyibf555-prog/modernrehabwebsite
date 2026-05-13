@@ -345,6 +345,46 @@
 .note-form textarea:focus { outline: none; border-color: var(--mr-orange); }
 .note-form .actions { display: flex; justify-content: flex-end; }
 
+/* ---------- Notes timeline ---------- */
+.notes-timeline {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.note-entry {
+  background: var(--mr-paper-2);
+  border: 1px solid var(--mr-rule);
+  border-radius: 2px;
+  padding: 12px 14px;
+}
+.note-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: baseline;
+  margin-bottom: 6px;
+  font-family: var(--mono-stack);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mr-mute);
+}
+.note-meta .note-when { color: var(--mr-ink); font-weight: 500; }
+.note-meta .note-relative { opacity: 0.75; }
+.note-meta .note-author { color: var(--mr-orange); }
+.note-body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--mr-ink);
+  white-space: pre-wrap;
+}
+
 .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 
 /* ---------- Login ---------- */

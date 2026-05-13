@@ -87,7 +87,11 @@ export default async function AdminOverview() {
                   const svc = serviceMap.get(b.serviceId);
                   return (
                     <tr key={b.id} className={b.status === "cancelled" ? "is-cancelled" : ""}>
-                      <td className="cell-mono">{b.slot}</td>
+                      <td>
+                        <Link href={`/admin/bookings/${b.id}`} className="cell-mono" style={{ color: "var(--mr-ink)", fontWeight: 600 }}>
+                          {b.slot}
+                        </Link>
+                      </td>
                       <td className="cell-bold cell-name">
                         <Link href={`/admin/clients/${b.clientId}`}>{c?.fullName ?? "Unknown"}</Link>
                       </td>
@@ -191,7 +195,11 @@ async function UpcomingList() {
           const svc = serviceMap.get(b.serviceId);
           return (
             <tr key={b.id}>
-              <td className="cell-mono">{prettyDateTime(new Date(b.scheduledAt))}</td>
+              <td>
+                <Link href={`/admin/bookings/${b.id}`} className="cell-mono" style={{ color: "var(--mr-ink)", fontWeight: 600 }}>
+                  {prettyDateTime(new Date(b.scheduledAt))}
+                </Link>
+              </td>
               <td className="cell-bold cell-name">
                 <Link href={`/admin/clients/${b.clientId}`}>{c?.fullName ?? "Unknown"}</Link>
               </td>
